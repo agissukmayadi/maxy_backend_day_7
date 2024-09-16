@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Set Alarm</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="bg-light">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-4 border rounded-3 p-5 bg-white">
+          <h1 class="text-center mb-4">Set Your Alarm</h1>
+          <div class="mb-3">
+            <label for="hour" class="form-label">Hour (24-hour format):</label>
+            <input
+              type="number"
+              class="form-control"
+              id="hour"
+              min="0"
+              max="23"
+              placeholder="HH"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="minute" class="form-label">Minute:</label>
+            <input
+              type="number"
+              class="form-control"
+              id="minute"
+              min="0"
+              max="59"
+              placeholder="MM"
+            />
+          </div>
+          <button id="set-alarm" class="btn btn-primary w-100">
+            Set Alarm
+          </button>
+
+          <div class="mt-3 text-center">
+            Alarm Set On: <span id="alarm" class="fw-bold text-danger"></span>
+          </div>
+          <div class="mt-3 text-center">
+            Time Remaining: <span id="countdown" class="fw-bold"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="alarmModal"
+      tabindex="-1"
+      aria-labelledby="alarmModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="alarmModalLabel">Alarm!</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">It's time! Your alarm is ringing!</div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <audio id="alarm-sound" src="audio/alarm.mp3" preload="auto" loop></audio>
+
+    <script>
+      let alarmInterval;
+      function checkAlarm(alarmTime) {
+        const currentTime = new Date();
+
+        if (currentTime >= alarmTime) {
+          const alarmModal = new bootstrap.Modal(
+            document.getElementById("alarmModal")
+          );
+          alarmModal.show();
+
+          document.getElementById("alarm-sound").play();
+
+          clearInterval(alarmInterval);
+          document.querySelector("#alarm").textContent = "";
+          document.querySelector("#countdown").textContent = "";
+        } else {
+          const timeDifference = alarmTime - currentTime;
+          const hours = Math.floor(timeDifference / (1000 * 60 * 60));
+          const minutes = Math.floor(
+            (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
+          );
+          const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+          document.querySelector("#countdown").textContent = `${hours
+            .toString()
+            .padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds
+            .toString()
+            .padStart(2, "0")}`;
+        }
+      }
+
+      document
+        .getElementById("set-alarm")
+        .addEventListener("click", function () {
+          const alarmHour = parseInt(document.getElementById("hour").value);
+          const alarmMinute = parseInt(document.getElementById("minute").value);
+
+          if (
+            isNaN(alarmHour) ||
+            isNaN(alarmMinute) ||
+            alarmHour < 0 ||
+            alarmHour > 23 ||
+            alarmMinute < 0 ||
+            alarmMinute > 59
+          ) {
+            alert("Please enter a valid time.");
+            return;
+          }
+
+          const currentTime = new Date();
+          const alarmTime = new Date(
+            currentTime.getFullYear(),
+            currentTime.getMonth(),
+            currentTime.getDate(),
+            alarmHour,
+            alarmMinute,
+            0
+          );
+
+          if (alarmTime <= currentTime) {
+            alarmTime.setDate(alarmTime.getDate() + 1);
+          }
+
+          document.querySelector("#alarm").textContent = `${alarmHour
+            .toString()
+            .padStart(2, "0")}:${alarmMinute.toString().padStart(2, "0")}`;
+
+          if (alarmInterval) {
+            clearInterval(alarmInterval);
+            document.querySelector("#alarm").textContent = "";
+            document.querySelector("#countdown").textContent = "";
+          }
+
+          alarmInterval = setInterval(() => {
+            checkAlarm(alarmTime);
+          }, 1000);
+        });
+
+      document
+        .getElementById("alarmModal")
+        .addEventListener("hidden.bs.modal", function () {
+          document.getElementById("alarm-sound").pause();
+          document.getElementById("alarm-sound").currentTime = 0;
+        });
+    </script>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
