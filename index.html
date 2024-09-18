@@ -102,6 +102,12 @@
       document
         .getElementById("set-alarm")
         .addEventListener("click", function () {
+          if (alarmInterval) {
+            clearInterval(alarmInterval);
+            document.querySelector("#alarm").textContent = "";
+            document.querySelector("#countdown").textContent = "";
+          }
+
           const time = document.getElementById("time").value;
           const [hours, minutes] = time.split(":");
 
@@ -123,14 +129,7 @@
           if (alarmTime <= currentTime) {
             alarmTime.setDate(alarmTime.getDate() + 1);
           }
-
           document.querySelector("#alarm").textContent = `${time}`;
-
-          if (alarmInterval) {
-            clearInterval(alarmInterval);
-            document.querySelector("#alarm").textContent = "";
-            document.querySelector("#countdown").textContent = "";
-          }
 
           alarmInterval = setInterval(() => {
             checkAlarm(alarmTime);
