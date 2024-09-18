@@ -16,26 +16,8 @@
         <div class="col-md-4 border rounded-3 p-5 bg-white">
           <h1 class="text-center mb-4">Set Your Alarm</h1>
           <div class="mb-3">
-            <label for="hour" class="form-label">Hour (24-hour format):</label>
-            <input
-              type="number"
-              class="form-control"
-              id="hour"
-              min="0"
-              max="23"
-              placeholder="HH"
-            />
-          </div>
-          <div class="mb-3">
-            <label for="minute" class="form-label">Minute:</label>
-            <input
-              type="number"
-              class="form-control"
-              id="minute"
-              min="0"
-              max="59"
-              placeholder="MM"
-            />
+            <label for="time" class="form-label">Time:</label>
+            <input type="time" class="form-control" id="time" />
           </div>
           <button id="set-alarm" class="btn btn-primary w-100">
             Set Alarm
@@ -120,17 +102,10 @@
       document
         .getElementById("set-alarm")
         .addEventListener("click", function () {
-          const alarmHour = parseInt(document.getElementById("hour").value);
-          const alarmMinute = parseInt(document.getElementById("minute").value);
+          const time = document.getElementById("time").value;
+          const [hours, minutes] = time.split(":");
 
-          if (
-            isNaN(alarmHour) ||
-            isNaN(alarmMinute) ||
-            alarmHour < 0 ||
-            alarmHour > 23 ||
-            alarmMinute < 0 ||
-            alarmMinute > 59
-          ) {
+          if (time == "") {
             alert("Please enter a valid time.");
             return;
           }
@@ -140,8 +115,8 @@
             currentTime.getFullYear(),
             currentTime.getMonth(),
             currentTime.getDate(),
-            alarmHour,
-            alarmMinute,
+            parseInt(hours),
+            parseInt(minutes),
             0
           );
 
@@ -149,9 +124,7 @@
             alarmTime.setDate(alarmTime.getDate() + 1);
           }
 
-          document.querySelector("#alarm").textContent = `${alarmHour
-            .toString()
-            .padStart(2, "0")}:${alarmMinute.toString().padStart(2, "0")}`;
+          document.querySelector("#alarm").textContent = `${time}`;
 
           if (alarmInterval) {
             clearInterval(alarmInterval);
